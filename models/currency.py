@@ -3,57 +3,56 @@ from user.model import db
 
 
 class CurrencySymbol(db.Model):
-    __tablename__ = "Currency_Symbol"
+    __tablename__ = "currency_symbol"
 
-    symbol = db.Column("Symbol", db.String(10), primary_key=True)
-    name   = db.Column("Name", db.String(40), nullable=False)
+    symbol = db.Column(db.String(10), primary_key=True)
+    name   = db.Column(db.String(40), nullable=False)
 
     currencies = relationship("Currency", back_populates="symbol_ref")
 
 
 class Currency(db.Model):
-    __tablename__ = "Currency"
+    __tablename__ = "currency"
 
-    currency_id = db.Column("Currency ID", db.Integer,
-                             primary_key=True, autoincrement=True)
-    name   = db.Column("Name", db.String(40), nullable=False)
-    symbol = db.Column("Symbol", db.String(10),
-                        db.ForeignKey('Currency_Symbol."Symbol"'),
-                        nullable=False)
-    status = db.Column("Status", db.String(20))
+    currency_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name        = db.Column(db.String(40), nullable=False)
+    symbol      = db.Column(db.String(10),
+                            db.ForeignKey("currency_symbol.symbol"),
+                            nullable=False)
+    status      = db.Column(db.String(20))
 
     symbol_ref  = relationship(CurrencySymbol, back_populates="currencies")
     crypto_meta = relationship("CryptoCurrency", uselist=False,
                                back_populates="currency")
-    fiat_meta   = relationship("FiatCurrency", uselist=False,
+    fiat_meta   = relationship("FiatCurrency",   uselist=False,
                                back_populates="currency")
     markets     = relationship("CurrencyHasMarket", back_populates="currency")
 
 
 class CryptoCurrency(db.Model):
-    __tablename__ = "Crypto_Currency"
+    __tablename__ = "crypto_currency"
 
-    currency_id = db.Column("Currency ID", db.Integer,
-                             db.ForeignKey('Currency."Currency ID"'),
+    currency_id  = db.Column(db.Integer,
+                             db.ForeignKey("currency.currency_id"),
                              primary_key=True)
-    rank         = db.Column("Rank", db.Integer)
-    market_cap   = db.Column("Market Cap", db.BigInteger)
-    trading_vol  = db.Column("Trading Volume", db.BigInteger)
-    circulation  = db.Column("Circulation Supply", db.BigInteger)
-    total_supply = db.Column("Total Supply", db.BigInteger)
-    max_supply   = db.Column("Max Suppply", db.BigInteger)
-    ath          = db.Column("ATH", db.Float)
-    atl          = db.Column("ATL", db.Float)
+    rank         = db.Column(db.Integer)
+    market_cap   = db.Column(db.BigInteger)
+    trading_vol  = db.Column(db.BigInteger)
+    circulation  = db.Column(db.BigInteger)
+    total_supply = db.Column(db.BigInteger)
+    max_supply   = db.Column(db.BigInteger)
+    ath          = db.Column(db.Float)
+    atl          = db.Column(db.Float)
 
     currency = relationship(Currency, back_populates="crypto_meta")
 
 
 class FiatCurrency(db.Model):
-    __tablename__ = "Fiat_Currency"
+    __tablename__ = "fiat_currency"
 
-    currency_id = db.Column("Currency ID", db.Integer,
-                             db.ForeignKey('Currency."Currency ID"'),
+    currency_id = db.Column(db.Integer,
+                             db.ForeignKey("currency.currency_id"),
                              primary_key=True)
-    origin      = db.Column("Origin", db.String(60))
+    origin      = db.Column(db.String(60))
 
     currency = relationship(Currency, back_populates="fiat_meta")

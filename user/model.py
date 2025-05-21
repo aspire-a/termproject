@@ -6,25 +6,28 @@ db = SQLAlchemy()
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = "User"
+    __tablename__ = "user"
 
-    user_id = db.Column("User ID", db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column("Email", db.String(100), unique=True, nullable=False)
-    name = db.Column("Name", db.String(60), nullable=False)
-    surname = db.Column("Surname", db.String(60), nullable=False)
-    phone = db.Column("Phone", db.String(20))
-    address = db.Column("Adress", db.Text)
-    password = db.Column("Password", db.String, nullable=False)
-    verify_time = db.Column("Verify Time", db.DateTime)
-    national_id = db.Column("National ID", db.String(20))
-    kyc_status = db.Column("KYC Status", db.String(30))
+    user_id     = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email       = db.Column(db.String(100), unique=True, nullable=False)
+    name        = db.Column(db.String(60),  nullable=False)
+    surname     = db.Column(db.String(60),  nullable=False)
+    phone       = db.Column(db.String(20))
+    address     = db.Column(db.Text)
+    password    = db.Column(db.String,     nullable=False)
+    verify_time = db.Column(db.DateTime)
+    national_id = db.Column(db.String(20))
+    kyc_status  = db.Column(db.String(30))
 
-    def __init__(self, email, name, surname, password, phone=None, address=None, national_id=None):
-        self.email = email
-        self.name = name
-        self.surname = surname
-        self.phone = phone
-        self.address = address
+    # inverse relationships arrive via back_populates/backref elsewhere
+
+    def __init__(self, email, name, surname, password,
+                 phone=None, address=None, national_id=None):
+        self.email       = email
+        self.name        = name
+        self.surname     = surname
+        self.phone       = phone
+        self.address     = address
         self.national_id = national_id
         self.set_password(password)
 

@@ -3,30 +3,29 @@ from user.model import db, User
 
 
 class WalletHasCurrency(db.Model):
-    __tablename__ = "Wallet_has_Currency"
+    __tablename__ = "wallet_has_currency"
 
-    wallet_id   = db.Column("Wallet ID", db.Integer,
-                             db.ForeignKey('Wallet."Wallet ID"'),
-                             primary_key=True)
-    currency_id = db.Column("Currency ID", db.Integer,
-                             db.ForeignKey('Currency."Currency ID"'),
-                             primary_key=True)
-    quantity    = db.Column("Quantity", db.Float)
+    wallet_id   = db.Column(db.Integer,
+                            db.ForeignKey("wallet.wallet_id"),
+                            primary_key=True)
+    currency_id = db.Column(db.Integer,
+                            db.ForeignKey("currency.currency_id"),
+                            primary_key=True)
+    quantity    = db.Column(db.Float)
 
-    wallet   = relationship("Wallet", back_populates="currencies")
+    wallet   = relationship("Wallet",   back_populates="currencies")
     currency = relationship("Currency")
 
 
 class Wallet(db.Model):
-    __tablename__ = "Wallet"
+    __tablename__ = "wallet"
 
-    wallet_id     = db.Column("Wallet ID", db.Integer,
-                               primary_key=True, autoincrement=True)
-    status        = db.Column("Status", db.String(30))
-    total_balance = db.Column("Total Balance", db.Float)
-    user_id       = db.Column("User ID", db.Integer,
-                               db.ForeignKey('User."User ID"'),
-                               nullable=False)
+    wallet_id     = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    status        = db.Column(db.String(30))
+    total_balance = db.Column(db.Float)
+    user_id       = db.Column(db.Integer,
+                              db.ForeignKey("user.user_id"),
+                              nullable=False)
 
     user       = relationship(User, backref="wallet", uselist=False)
     currencies = relationship(
