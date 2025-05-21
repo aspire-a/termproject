@@ -1,20 +1,15 @@
-from flask import Flask, render_template
-from flask_login import (LoginManager, login_required, current_user)
+from flask import Flask, redirect, url_for
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from dotenv import load_dotenv
-import os, logging
+import os
 
-from user import db, bp as user_bp               # import shared objects
-from user.model import User
+from models import db, User           # shared db + model registry
+import models                         # populate metadata
+from pages import register_all_blueprints
 
 load_dotenv()
 
-login_manager = LoginManager()
-login_manager.login_view = "user.login"          # redirect here if needed
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 def create_app():
     app = Flask(__name__)
@@ -24,32 +19,28 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
     )
 
+    # ── extensions ────────────────────────────────────────────────────
     db.init_app(app)
-    import models
-    # -----------------------------------------------------Alembic CLI
-    migrate = Migrate()
-    migrate.init_app(app, db)  # now `flask db …` works
-    # ----------------------------------------------------------------
+    Migrate(app, db)
 
-    login_manager.init_app(app)
-    app.register_blueprint(user_bp)
+    lm = LoginManager(app)
+    lm.login_view = "auth.login"
 
+    @lm.user_loader
+    def load_user(uid):
+        return User.query.get(int(uid))
+    # ──────────────────────────────────────────────────────────────────
+
+    # auto-discover every pages/* blueprint (home, auth, …)
+    register_all_blueprints(app)
+
+    # root simply forwards to home.index (handled by pages/home)
     @app.get("/")
-    def home():
-        return """render_template("home.html")"""
-
-    @app.get("/dashboard")
-    @login_required
-    def dashboard():
-        return """"render_template("dashboard.html")"""
-
-    # # INFO logs show in console
-    # app.logger.setLevel(logging.INFO)
-    # with app.app_context():
-    #     db.session.execute("SELECT 1")
-    #     app.logger.info("✅ Connected to Postgres!")
+    def root():
+        return redirect(url_for("home.index"))
 
     return app
+
 
 app = create_app()
 

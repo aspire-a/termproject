@@ -1,50 +1,25 @@
-"""
-Expose a single `db` instance plus every model so that:
+from flask_sqlalchemy import SQLAlchemy
 
-• Alembic's autogenerate sees the full metadata
-• Other packages can `from models import Something`
-"""
+# one shared instance
+db = SQLAlchemy()
 
-# ---- shared db instance comes from the User feature ------------------
-from user.model import db  # do NOT create a new SQLAlchemy()
-
-# ---- core feature group imports (order doesn’t matter) ---------------
-# wallet & bridge
-from .wallet import Wallet, WalletHasCurrency
-
-# currency hierarchy
+# --- import every table module *after* db created --------------------
+from .user     import User
+from .wallet   import Wallet, WalletHasCurrency
 from .currency import (
     CurrencySymbol, Currency,
     CryptoCurrency, FiatCurrency
 )
+from .market   import Market, OrderBook, PriceHistory, CurrencyHasMarket
+from .trading  import Trade, Order
+from .agent    import CustomerServiceAgent, Issue, Transaction
+# ---------------------------------------------------------------------
 
-# market & price data
-from .market import (
-    Market, OrderBook, PriceHistory,
-    CurrencyHasMarket
-)
-
-# trading layer
-from .trading import Trade, Order
-
-# customer-support / finance
-from .agent import (
-    CustomerServiceAgent, Issue, Transaction
-)
-
-# ---- what gets re-exported on `from models import *` -----------------
 __all__ = [
-    # db handle
-    "db",
-    # wallet
+    "db", "User",
     "Wallet", "WalletHasCurrency",
-    # currency
-    "CurrencySymbol", "Currency",
-    "CryptoCurrency", "FiatCurrency",
-    # market
+    "CurrencySymbol", "Currency", "CryptoCurrency", "FiatCurrency",
     "Market", "OrderBook", "PriceHistory", "CurrencyHasMarket",
-    # trading
     "Trade", "Order",
-    # support / finance
     "CustomerServiceAgent", "Issue", "Transaction",
 ]

@@ -1,6 +1,5 @@
 from sqlalchemy.orm import relationship
-from user.model import db
-
+from models import db
 
 class Market(db.Model):
     __tablename__ = "market"

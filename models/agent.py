@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from user.model import db, User
+from models import db, User
 
 
 class CustomerServiceAgent(db.Model):

@@ -1,15 +1,16 @@
 from sqlalchemy.exc import IntegrityError
-from user.model import db, User
+from models import db, User
 
 
 def create_user(email: str, name: str, surname: str, password: str) -> User:
-    user = User(email=email, name=name, surname=surname, password=password)
+    user = User(email=email, name=name, surname=surname)
+    user.set_password(password)
     db.session.add(user)
     try:
         db.session.commit()
-    except IntegrityError as e:
+    except IntegrityError as err:
         db.session.rollback()
-        raise ValueError("E-mail already exists" + str(e))
+        raise ValueError("E-mail already exists") from err
     return user
 
 
