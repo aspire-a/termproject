@@ -19,7 +19,6 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS = False,
     )
 
-    # ── extensions ────────────────────────────────────────────────────
     db.init_app(app)
     Migrate(app, db)
 
@@ -29,12 +28,9 @@ def create_app():
     @lm.user_loader
     def load_user(uid):
         return User.query.get(int(uid))
-    # ──────────────────────────────────────────────────────────────────
 
-    # auto-discover every pages/* blueprint (home, auth, …)
     register_all_blueprints(app)
 
-    # root simply forwards to home.index (handled by pages/home)
     @app.get("/")
     def root():
         return redirect(url_for("home.index"))

@@ -34,7 +34,7 @@ class Order(db.Model):
     market_id      = db.Column(db.Integer,
                                db.ForeignKey("market.market_id"), nullable=False)
     trade_id       = db.Column(db.Integer,
-                               db.ForeignKey("trade.trade_id"), nullable=False)
+                               db.ForeignKey("trade.trade_id"))
     order_book_id  = db.Column(db.Integer,
                                db.ForeignKey("order_book.market_id"),
                                nullable=False)

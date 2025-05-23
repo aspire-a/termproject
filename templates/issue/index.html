@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width:600px">
+  <h3>Create Issue</h3>
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in msgs %}
+      <div class="alert alert-{{cat}}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="post" class="vstack gap-3">
+    <div>
+      <label class="form-label">Type</label>
+      <select name="type" class="form-select" required>
+        <option value="" disabled selected>Choose…</option>
+        {% for t in types %}
+          <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="form-label">Description</label>
+      <textarea name="description" rows="6" class="form-control" required></textarea>
+    </div>
+
+    <button class="btn btn-primary w-100">Submit Issue</button>
+  </form>
+</div>
+{% endblock %}
