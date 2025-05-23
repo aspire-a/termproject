@@ -1,4 +1,4 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from models import db, User
 
 
@@ -25,9 +25,9 @@ class Wallet(db.Model):
     total_balance = db.Column(db.Float)
     user_id       = db.Column(db.Integer,
                               db.ForeignKey("user.user_id"),
-                              nullable=False)
+                              nullable=False, unique=True)
 
-    user       = relationship(User, backref="wallet", uselist=False)
+    user       = relationship(User, backref=backref("wallet", uselist=False), uselist=False)
     currencies = relationship(
         WalletHasCurrency,
         back_populates="wallet",

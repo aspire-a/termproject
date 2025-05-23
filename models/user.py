@@ -1,5 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.orm import relationship
 
 from models import db
 
@@ -18,7 +19,6 @@ class User(UserMixin, db.Model):
     national_id = db.Column(db.String(20))
     kyc_status  = db.Column(db.String(30))
 
-    # inverse relationships arrive via back_populates/backref elsewhere
 
     def __init__(self, email, name, surname, password,
                  phone=None, address=None, national_id=None):

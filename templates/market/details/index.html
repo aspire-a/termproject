@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <nav class="d-flex justify-content-between align-items-center mb-3 px-2 py-1 bg-light border">
+        <form action="{{ url_for('home.do_logout') }}" method="post">
+            <button class="btn btn-sm btn-outline-secondary">Logout</button>
+        </form>
+
+        <div class="d-flex align-items-center gap-2">
+            <a class="btn btn-sm btn-outline-warning" href="{{ url_for('issue.index') }}">
+                Create Issue
+            </a>
+            <img src="{{ url_for('static', filename='emptyuser.png') }}" height="32">
+            <span>{{ current_user.name }} {{ current_user.surname }}</span>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width:600px">
+        {% with msgs = get_flashed_messages(with_categories=true) %}
+            {% for category, message in msgs %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <h2 class="text-center">{{ market.name }}</h2>
+        <h4 class="text-center text-muted mb-4">{{ price or "N/A" }}</h4>
+
+        <form id="orderForm"
+              method="post"
+              action="{{ url_for('market_details.place', market_id=market.market_id) }}"
+              class="vstack gap-3">
+
+            <div>
+                <label for="qtyBase" class="form-label">{{ base }}:</label>
+                <input type="number" step="any" min="0" id="qtyBase" class="form-control">
+            </div>
+            <div>
+                <label for="qtyQuote" class="form-label">{{ quote }}:</label>
+                <input type="number" step="any" min="0" id="qtyQuote" class="form-control">
+            </div>
+            <div>
+                <label for="limitPrice" class="form-label">Limit:</label>
+                <input type="number" step="any" min="0" name="limit" id="limitPrice"
+                       value="{{ price or '' }}" class="form-control" required>
+            </div>
+
+            <input type="hidden" name="qty" id="qtyHidden">
+            <input type="hidden" name="side" id="sideHidden">
+
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-success w-50 me-2"
+                        onclick="submitOrder('BUY')">Buy
+                </button>
+                <button type="button" class="btn btn-danger w-50"
+                        onclick="submitOrder('SELL')">Sell
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            const priceField = document.getElementById('limitPrice');
+            const baseField = document.getElementById('qtyBase');
+            const quoteField = document.getElementById('qtyQuote');
+
+            function syncFromBase() {
+                const p = parseFloat(priceField.value);
+                const b = parseFloat(baseField.value);
+                if (!isNaN(p) && !isNaN(b)) {
+                    quoteField.value = (b * p).toFixed(6);
+                }
+            }
+
+            function syncFromQuote() {
+                const p = parseFloat(priceField.value);
+                const q = parseFloat(quoteField.value);
+                if (!isNaN(p) && !isNaN(q)) {
+                    baseField.value = (q / p).toFixed(6);
+                }
+            }
+
+            baseField.addEventListener('input', syncFromBase);
+            quoteField.addEventListener('input', syncFromQuote);
+            priceField.addEventListener('input', () => {
+                syncFromBase();
+                syncFromQuote();
+            });
+
+            window.submitOrder = function (side) {
+                const qty = parseFloat(baseField.value);
+                if (isNaN(qty) || qty <= 0) {
+                    alert("Enter amount");
+                    return;
+                }
+                document.getElementById('qtyHidden').value = qty;
+                document.getElementById('sideHidden').value = side;
+                document.getElementById('orderForm').submit();
+            };
+        })();
+    </script>
+
+{% endblock %}

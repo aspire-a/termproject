@@ -1,38 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
 
-<nav class="d-flex justify-content-between align-items-center mb-3 px-2 py-1 bg-light border">
-  <form action="{{ url_for('home.do_logout') }}" method="post">
-    <button class="btn btn-sm btn-outline-secondary">Logout</button>
-  </form>
+    <nav class="d-flex justify-content-between align-items-center mb-3 px-2 py-1 bg-light border">
+        <form action="{{ url_for('home.do_logout') }}" method="post">
+            <button class="btn btn-sm btn-outline-secondary">Logout</button>
+        </form>
 
-  <div class="d-flex align-items-center gap-2">
-    <a class="btn btn-sm btn-outline-warning" href="{{ url_for('issue.index') }}">
-      Create Issue
-    </a>
-    <img src="{{ url_for('static', filename='emptyuser.png') }}" height="32">
-    <span>{{ current_user.name }} {{ current_user.surname }}</span>
-  </div>
-</nav>
+        <div class="d-flex align-items-center gap-2">
+            <a class="btn btn-sm btn-outline-warning" href="{{ url_for('issue.index') }}">
+                Create Issue
+            </a>
+            <img src="{{ url_for('static', filename='emptyuser.png') }}" height="32">
+            <span>{{ current_user.name }} {{ current_user.surname }}</span>
+        </div>
+    </nav>
 
-<div class="container" style="max-width:800px">
-  <h4 class="mb-3">Open Markets</h4>
-  <table class="table table-bordered">
-    <thead class="table-light"><tr><th>Name</th><th class="text-end">Price</th><th></th></tr></thead>
-    <tbody>
-      {% for mkt, price in rows %}
-        <tr>
-          <td>{{ mkt.name }}</td>
-          <td class="text-end">{{ price }}</td>
-          <td class="text-center">
-            <a class="btn btn-sm btn-outline-primary" href="#">Details</a>
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="3" class="text-center">No open markets</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+    <div class="container" style="max-width:800px">
+        <h4 class="mb-3">Open Markets</h4>
+        <table class="table table-bordered">
+            <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th class="text-end">Price</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for mkt, price in rows %}
+                <tr>
+                    <td>{{ mkt.name }}</td>
+                    <td class="text-end">{{ price }}</td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{{ url_for('market_details.view', market_id=mkt.market_id) }}">Details</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">No open markets</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 {% endblock %}
