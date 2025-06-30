@@ -1,6 +1,6 @@
-
-from datetime import datetime, timezone
-from sqlalchemy import desc, and_
+from datetime import datetime, timezone, timedelta
+from sqlalchemy import desc, and_, func
+from flask_login import current_user
 from models import (
     db,
     Market,
@@ -21,6 +21,21 @@ def latest_price(market_id: int) -> float | None:
         .first()
     )
     return row.close_price if row else None
+
+
+def trading_volume_today(market_id: int) -> float:
+    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start + timedelta(days=1)  # next midnight UTC
+    vol = (
+        db.session.query(func.coalesce(func.sum(Trade.quantity), 0.0))
+        .filter(
+            Trade.market_id == market_id,
+            Trade.trade_time >= start,
+            Trade.trade_time < end,
+        )
+        .scalar()
+    )
+    return float(vol)
 
 
 def place_order(user, market_id: int, order_type: str, qty: float, limit_price: float):
@@ -161,18 +176,13 @@ def _match_orders(order: Order):
 
 
 def _settle_wallets(
-    base_sym: str,
-    quote_sym: str,
-    buyer: Order,
-    seller: Order,
-    qty: float,
-    price: float,
+        base_sym: str,
+        quote_sym: str,
+        buyer: Order,
+        seller: Order,
+        qty: float,
+        price: float,
 ):
-    """
-    For each trade:
-      - buyer pays quote and receives base
-      - seller gives base and receives quote
-    """
     buyer_wallet = buyer.user.wallet
     seller_wallet = seller.user.wallet
 
@@ -183,3 +193,16 @@ def _settle_wallets(
     # Seller side
     _decrease(seller_wallet, base_sym, qty)
     _increase(seller_wallet, quote_sym, qty * price)
+
+
+def user_open_orders(market_id: int):
+    return (
+        Order.query
+        .filter_by(
+            market_id=market_id,
+            user_id=current_user.user_id,
+            status="OPEN",
+        )
+        .order_by(Order.creation_time.desc())
+        .all()
+    )
