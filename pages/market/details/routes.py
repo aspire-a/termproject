@@ -11,10 +11,18 @@ def register_routes(bp):
     def view(market_id):
         market = Market.query.get_or_404(market_id)
         price = svc.latest_price(market_id)
+        volume = svc.trading_volume_today(market_id)
         base, quote = market.name.split("/")
-        return render_template("market/details/index.html",
-                               market=market, price=price,
-                               base=base, quote=quote)
+        open_orders = svc.user_open_orders(market_id)
+        return render_template(
+            "market/details/index.html",
+            market=market,
+            price=price,
+            volume=volume,
+            base=base,
+            quote=quote,
+            open_orders=open_orders
+        )
 
     # place order
     @bp.post("/<int:market_id>/order")
